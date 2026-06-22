@@ -1,0 +1,10 @@
+# Python virtualenv (local tooling only — not part of the game)
+env/
+
+# Node / tooling
+node_modules/
+
+# OS / editor cruft
+.DS_Store
+*.log
+*:Zone.Identifier

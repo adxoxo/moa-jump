@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MOA JUMP — Jump to the Stars</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0a0014;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+    }
+    #game-root {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      display: block;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-root"></div>
+
+  <!-- Phaser 3.60 game engine -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <!-- GSAP 3.12 UI animations -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+
+  <!-- Game source — order matters: globals & entities before scenes -->
+  <script src="src/main.js"></script>
+  <script src="src/entities/Player.js"></script>
+  <script src="src/entities/Platform.js"></script>
+  <script src="src/entities/Enemy.js"></script>
+  <script src="src/zones/ZoneManager.js"></script>
+  <script src="src/services/leaderboard.js"></script>
+  <script src="src/scenes/TitleScene.js"></script>
+  <script src="src/scenes/CharacterSelectScene.js"></script>
+  <script src="src/scenes/GameScene.js"></script>
+  <script src="src/scenes/WinScene.js"></script>
+  <script src="src/scenes/LeaderboardScene.js"></script>
+
+  <!-- Boot Phaser after all scripts loaded -->
+  <script src="src/boot.js"></script>
+</body>
+</html>
