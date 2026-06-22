@@ -92,6 +92,10 @@ window.UI = {
     const fill = opts.fill !== undefined ? opts.fill : 0x7c3aed;
     const container = scene.add.container(x, y).setDepth(500);
 
+    // IMPORTANT: feedback animations scale `visual`, NOT the container. The container
+    // carries the interactive hit area, so the tap target never moves or resizes while
+    // the button wobbles — taps near the edge can't "fall off" mid-animation.
+    const visual = scene.add.container(0, 0);
     const bg = scene.add.graphics();
     const draw = (c) => { bg.clear(); bg.fillStyle(c, 1); bg.fillRoundedRect(-w / 2, -h / 2, w, h, 14);
       bg.lineStyle(2, 0xffffff, 0.35); bg.strokeRoundedRect(-w / 2, -h / 2, w, h, 14); };
@@ -102,10 +106,11 @@ window.UI = {
       color: '#ffffff', fontStyle: 'bold',
     }).setOrigin(0.5);
 
-    container.add([bg, txt]);
+    visual.add([bg, txt]);
+    container.add(visual);
     container.setSize(w, h);
-    // Generous hit area (8px padding) + hand cursor for reliable taps on small/scaled screens.
-    const pad = 8;
+    // Generous fixed hit area (12px padding) + hand cursor for reliable taps on small/scaled screens.
+    const pad = 12;
     container.setInteractive(
       new Phaser.Geom.Rectangle(-w / 2 - pad, -h / 2 - pad, w + pad * 2, h + pad * 2),
       Phaser.Geom.Rectangle.Contains
@@ -114,17 +119,17 @@ window.UI = {
 
     const bright = Phaser.Display.Color.IntegerToColor(fill).brighten(20).color;
     let fired = false;
-    container.on('pointerover', () => { draw(bright); if (window.gsap) gsap.to(container, { scale: 1.05, duration: 0.15 }); });
-    container.on('pointerout',  () => { draw(fill);   if (window.gsap) gsap.to(container, { scale: 1, duration: 0.15 }); fired = false; });
-    // Fire on pointerDOWN so a tap registers immediately — no need to release exactly
-    // on the button (the old pointerup behaviour missed on any drift). Guard against
-    // a single press firing twice.
+    container.on('pointerover', () => { draw(bright); if (window.gsap) gsap.to(visual, { scale: 1.05, duration: 0.15 }); });
+    container.on('pointerout',  () => { draw(fill);   if (window.gsap) gsap.to(visual, { scale: 1, duration: 0.15 }); fired = false; });
+    // Fire on pointerDOWN so a tap registers immediately. Defer the actual onClick to the
+    // next tick so we never tear down the scene from inside Phaser's input dispatch
+    // (which can leave the input manager in a bad state for the following tap).
     container.on('pointerdown', () => {
       if (fired) return;
       fired = true;
       draw(fill);
-      if (window.gsap) gsap.to(container, { scale: 0.94, duration: 0.07, yoyo: true, repeat: 1 });
-      onClick();
+      if (window.gsap) gsap.to(visual, { scale: 0.94, duration: 0.07, yoyo: true, repeat: 1 });
+      scene.time.delayedCall(0, onClick);
     });
 
     return container;
