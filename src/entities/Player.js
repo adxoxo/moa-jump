@@ -131,15 +131,23 @@ window.Player = class Player {
     // AUDIO: this.scene.sound.play('sfx_hurt') — swap in when assets/audio/hurt.mp3 ready
     const tintOn = () => this.isImage ? this.body.setTint(0xff2244) : this.body.setFillStyle(0xff2244);
     const tintOff = () => this.isImage ? this.body.clearTint() : this.body.setFillStyle(this.character.color);
+    tintOn();
     if (window.gsap) {
-      // Blink red a few times during invincibility.
-      tintOn();
-      gsap.to(this.container, {
-        alpha: 0.4, duration: 0.12, repeat: 9, yoyo: true,
-        onComplete: () => { this.container.alpha = 1; tintOff(); },
-      });
+      // Blink the BODY's alpha (not the container). _squashStretch() on every jump does
+      // killTweensOf(this.container), which would otherwise cancel a container blink and
+      // leave the tint stuck on forever. Target 'alpha' only so the idle bob (body.y) survives.
+      gsap.killTweensOf(this.body, 'alpha');
+      this.body.alpha = 1;
+      gsap.to(this.body, { alpha: 0.3, duration: 0.12, yoyo: true, repeat: -1 });
     }
-    this.scene.time.delayedCall(window.HURT_DURATION, () => { this.invincible = false; });
+    // End the hurt state robustly here — this always runs, even if the blink tween was
+    // killed mid-flight, so the tint and invincibility can never get stuck.
+    this.scene.time.delayedCall(window.HURT_DURATION, () => {
+      this.invincible = false;
+      if (window.gsap) gsap.killTweensOf(this.body, 'alpha');
+      this.body.alpha = 1;
+      tintOff();
+    });
     return true;
   }
 
