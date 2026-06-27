@@ -4,6 +4,25 @@
 window.GameScene = class GameScene extends Phaser.Scene {
   constructor() { super('GameScene'); }
 
+  preload() {
+    // In case GameScene is entered first (e.g. Play Again) before textures cached.
+    window.CHARACTERS.forEach((ch) => {
+      if (ch.img && !this.textures.exists(ch.img)) this.load.image(ch.img, 'assets/characters/' + ch.img + '.png');
+    });
+    // Enemy art (only the files that exist will resolve; missing ones fall back to placeholders).
+    ['company_building', 'sasaeng', 'bad_review'].forEach((t) => {
+      const key = 'enemy_' + t;
+      if (!this.textures.exists(key)) this.load.image(key, 'assets/enemies/' + key + '.png');
+    });
+    // Per-zone background images (the "far" layer is the scrolling backdrop).
+    for (let z = 0; z < 3; z++) {
+      const key = 'bg_z' + z;
+      if (!this.textures.exists(key)) this.load.image(key, 'assets/backgrounds/bg_zone' + z + '_far.png');
+    }
+    // Don't let one missing file abort the whole load.
+    this.load.on('loaderror', (file) => console.warn('asset missing (using placeholder):', file.key));
+  }
+
   create() {
     UI.autoCleanup(this);
     window.resetRunState();
@@ -16,9 +35,10 @@ window.GameScene = class GameScene extends Phaser.Scene {
     this.enemies = [];
     this.highestY = window.GAME_H;  // y of the topmost platform (smallest y)
 
-    // ---- Background (gradient + 2 parallax layers, placeholders) ----
+    // ---- Background (per-zone image if available, else gradient + parallax dots) ----
     this.bg = UI.gradientBg(this, window.ZONES[0].bgTop, window.ZONES[0].bgBottom);
     this._buildParallax();
+    this._buildZoneBackground();
     this._makeParticleTextures();
 
     // ---- Player ----
@@ -63,6 +83,39 @@ window.GameScene = class GameScene extends Phaser.Scene {
     }
     this._parFarItems = this.parFar.list.slice();
     this._parMidItems = this.parMid.list.slice();
+  }
+
+  // Per-zone full-screen background image as a vertically-tiling parallax layer.
+  // Falls back silently to the gradient + dots when the image isn't loaded.
+  _buildZoneBackground() {
+    this.zoneBgKey = null;
+    if (this.textures.exists('bg_z0')) {
+      this.zoneBg = this.add.tileSprite(window.GAME_W / 2, window.GAME_H / 2, window.GAME_W, window.GAME_H, 'bg_z0')
+        .setDepth(-80);
+      // Scale the texture to cover the screen width (images share the screen aspect).
+      const tex = this.textures.get('bg_z0').getSourceImage();
+      this._bgTileScale = window.GAME_W / tex.width;
+      this.zoneBg.setTileScale(this._bgTileScale);
+      // Hide the gradient + dots when a real image is present.
+      this.bg.setVisible(false);
+      this.parFar.setVisible(false);
+      this.parMid.setVisible(false);
+    }
+  }
+
+  _setZoneBackground(z, instant) {
+    if (!this.zoneBg) return;
+    const key = 'bg_z' + z;
+    if (!this.textures.exists(key) || key === this.zoneBgKey) return;
+    this.zoneBgKey = key;
+    const apply = () => {
+      this.zoneBg.setTexture(key);
+      const tex = this.textures.get(key).getSourceImage();
+      this.zoneBg.setTileScale(window.GAME_W / tex.width);
+    };
+    if (instant || !window.gsap) { apply(); return; }
+    // Crossfade: fade out, swap, fade in.
+    gsap.to(this.zoneBg, { alpha: 0, duration: 0.4, onComplete: () => { apply(); gsap.to(this.zoneBg, { alpha: 1, duration: 0.5 }); } });
   }
 
   _makeParticleTextures() {
@@ -173,6 +226,7 @@ window.GameScene = class GameScene extends Phaser.Scene {
     else if (this.cursors.right.isDown || this.keyD.isDown) dir = 1;
     else if (this.touchDir !== 0) dir = this.touchDir;
     else if (Math.abs(this.tilt) > 0.08) dir = this.tilt;
+    if (this.player.stunned) dir = 0; // sasaeng flash freezes steering briefly
     this.player.vx = dir * speed;
 
     // --- Physics ---
@@ -207,6 +261,7 @@ window.GameScene = class GameScene extends Phaser.Scene {
       for (const e of this.enemies) e.shiftDown(scrollDelta);
       this.highestY += scrollDelta;
       this._parallaxShift(scrollDelta);
+      if (this.zoneBg) this.zoneBg.tilePositionY -= scrollDelta * 0.18; // gentle parallax drift
     }
 
     // --- Update platforms & enemies ---
@@ -219,6 +274,7 @@ window.GameScene = class GameScene extends Phaser.Scene {
         if (this.player.hurt()) {
           this.score = Math.max(0, this.score - window.ENEMY_PENALTY);
           if (e.def.knock) this.player.vx = Math.sign(this.player.x - e.x || 1) * 320;
+          if (e.def.stun) this.player.stun(500);
         }
       }
     }
@@ -264,6 +320,7 @@ window.GameScene = class GameScene extends Phaser.Scene {
     window.GameState.zoneReached = z;
     this.hudZone.setText('Zone: ' + zone.name);
     if (this.ambient) this.ambient.setParticleTint(zone.accent);
+    this._setZoneBackground(z, instant);
 
     if (instant) {
       UI.paintGradient(this.bg, zone.bgTop, zone.bgBottom);

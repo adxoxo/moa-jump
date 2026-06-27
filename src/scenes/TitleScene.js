@@ -3,6 +3,13 @@
 window.TitleScene = class TitleScene extends Phaser.Scene {
   constructor() { super('TitleScene'); }
 
+  preload() {
+    // Load any character image assets once; textures are cached game-wide afterward.
+    window.CHARACTERS.forEach((ch) => {
+      if (ch.img && !this.textures.exists(ch.img)) this.load.image(ch.img, 'assets/characters/' + ch.img + '.png');
+    });
+  }
+
   create() {
     UI.autoCleanup(this);
     UI.gradientBg(this, 0x0a0014, 0x1a0840);
@@ -32,11 +39,17 @@ window.TitleScene = class TitleScene extends Phaser.Scene {
 
     if (window.gsap) gsap.to(logo, { y: 150, duration: 1.4, yoyo: true, repeat: -1, ease: 'sine.inOut' });
 
-    // Bouncing chibi previews (placeholder rects, one per character).
-    const startX = window.GAME_W / 2 - (window.CHARACTERS.length - 1) * 35 / 2;
+    // Bouncing chibi previews (real character art, one per character).
+    const gap = 56;
+    const startX = window.GAME_W / 2 - (window.CHARACTERS.length - 1) * gap / 2;
     window.CHARACTERS.forEach((ch, i) => {
-      // ASSET: replace rect with this.add.sprite(x, y, 'character_' + ch.id)
-      const r = this.add.rectangle(startX + i * 35, 330, 28, 36, ch.color).setStrokeStyle(2, 0xffffff, 0.8);
+      let r;
+      if (ch.img && this.textures.exists(ch.img)) {
+        r = this.add.image(startX + i * gap, 330, ch.img).setOrigin(0.5);
+        r.setScale(54 / r.height); // fit ~54px tall
+      } else {
+        r = this.add.rectangle(startX + i * gap, 330, 28, 36, ch.color).setStrokeStyle(2, 0xffffff, 0.8);
+      }
       if (window.gsap) gsap.to(r, { y: 312, duration: 0.5, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: i * 0.12 });
     });
 

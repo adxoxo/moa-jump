@@ -11,9 +11,9 @@ window.ZONES = [
     physics: { GRAVITY: 1800, JUMP_POWER: -750, PLATFORM_SPEED: 1.0 },
     gap: 65,
     // platform type weights
-    platformWeights: { normal: 0.68, spring: 0.12, moving: 0.10, break: 0.10, fake: 0.0 },
-    enemies: ['pigeon'],
-    enemyChance: 0.12,
+    platformWeights: { normal: 0.62, spring: 0.12, moving: 0.13, break: 0.13, fake: 0.0 },
+    enemies: ['pigeon', 'company_building', 'sasaeng'],
+    enemyChance: 0.16,
     particle: 'dust',
   },
   {
@@ -24,9 +24,9 @@ window.ZONES = [
     accent: 0xc084fc,
     physics: { GRAVITY: 1850, JUMP_POWER: -760, PLATFORM_SPEED: 1.35 },
     gap: 68,
-    platformWeights: { normal: 0.44, spring: 0.12, moving: 0.20, break: 0.14, fake: 0.10 },
-    enemies: ['glitch_block', 'dream_creature'],
-    enemyChance: 0.22,
+    platformWeights: { normal: 0.40, spring: 0.12, moving: 0.20, break: 0.16, fake: 0.12 },
+    enemies: ['manager', 'bad_review', 'fan_wave'],
+    enemyChance: 0.27,
     particle: 'glitch',
   },
   {
@@ -37,9 +37,9 @@ window.ZONES = [
     accent: 0xfde68a,
     physics: { GRAVITY: 1900, JUMP_POWER: -770, PLATFORM_SPEED: 1.7 },
     gap: 72,
-    platformWeights: { normal: 0.40, spring: 0.12, moving: 0.22, break: 0.16, fake: 0.10 },
-    enemies: ['debris', 'alien', 'blackhole'],
-    enemyChance: 0.30,
+    platformWeights: { normal: 0.34, spring: 0.11, moving: 0.23, break: 0.18, fake: 0.14 },
+    enemies: ['rival_ship', 'cease_desist', 'antifan_meteor', 'blackhole'],
+    enemyChance: 0.36,
     particle: 'star',
   },
 ];

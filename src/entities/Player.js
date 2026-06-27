@@ -1,13 +1,20 @@
 // Player.js — defines window.CHARACTERS and the Player class.
 // Physics are MANUAL and screen-space (no Phaser arcade body). GameScene drives update().
 
-// Five original archetypes. No real member names (see CLAUDE.md / ARCHITECTURE.md).
+// Five original archetypes. No real member names shown in UI (disclaimer-safe).
+// Each is paired with a character art file whose persona matches the role:
+//   The Mage   <- yj (dramatic, main-character energy)
+//   The Bard   <- sb (tall, awkward, secretly cool — the leader)
+//   The Jester <- bg (pure chaos, always grinning)
+//   The Knight <- ty (intense, focused, works out)
+//   The Sage   <- hk (soft maknae, secretly powerful)
+// Colors are tuned to each character's actual art so trails/UI feel cohesive.
 window.CHARACTERS = [
-  { id: 'mage',   name: 'The Mage',   role: 'The Mage',   color: 0x3b82f6, hex: '#3b82f6', blurb: 'Dramatic. Overthinks everything.' },
-  { id: 'bard',   name: 'The Bard',   role: 'The Bard',   color: 0xa855f7, hex: '#a855f7', blurb: 'Tall, awkward, secretly cool.' },
-  { id: 'jester', name: 'The Jester', role: 'The Jester', color: 0xf97316, hex: '#f97316', blurb: 'Pure chaos. Always grinning.' },
-  { id: 'knight', name: 'The Knight', role: 'The Knight', color: 0xec4899, hex: '#ec4899', blurb: 'Intense. Accidentally cool.' },
-  { id: 'sage',   name: 'The Sage',   role: 'The Sage',   color: 0x22d3ee, hex: '#22d3ee', blurb: 'Soft, shy, secretly powerful.' },
+  { id: 'mage',   name: 'The Mage',   role: 'The Mage',   color: 0xf5c518, hex: '#f5c518', blurb: 'Dramatic. Overthinks everything.', img: 'yj' },
+  { id: 'bard',   name: 'The Bard',   role: 'The Bard',   color: 0x3b82f6, hex: '#3b82f6', blurb: 'Tall, awkward, secretly cool.',     img: 'sb' },
+  { id: 'jester', name: 'The Jester', role: 'The Jester', color: 0xec4899, hex: '#ec4899', blurb: 'Pure chaos. Always grinning.',       img: 'bg' },
+  { id: 'knight', name: 'The Knight', role: 'The Knight', color: 0x9ca3af, hex: '#9ca3af', blurb: 'Intense. Accidentally cool.',        img: 'ty' },
+  { id: 'sage',   name: 'The Sage',   role: 'The Sage',   color: 0xa855f7, hex: '#a855f7', blurb: 'Soft, shy, secretly powerful.',      img: 'hk' },
 ];
 
 window.PLAYER_W = 44;
@@ -35,27 +42,38 @@ window.Player = class Player {
 
   _buildSprite() {
     const c = this.character.color;
+    const img = this.character.img;
 
-    // ASSET: replace this Container of shapes with this.scene.add.sprite(x, y, 'character_' + this.character.id)
-    // ASSET: spritesheet key = 'character_<id>', frameWidth: 64, frameHeight: 80
-    // ASSET: animations: '<id>_idle' (frames 0-3, loop), '<id>_jump' (frames 4-5, once on jump)
-    const body = this.scene.add.rectangle(0, 0, this.w, this.h, c).setStrokeStyle(3, 0xffffff, 0.9);
-    body.setOrigin(0.5);
-
-    // Simple face so the placeholder reads as a character.
-    const eyeL = this.scene.add.circle(-9, -6, 4, 0xffffff);
-    const eyeR = this.scene.add.circle(9, -6, 4, 0xffffff);
-    const pupL = this.scene.add.circle(-9, -6, 2, 0x111111);
-    const pupR = this.scene.add.circle(9, -6, 2, 0x111111);
-    const mouth = this.scene.add.rectangle(0, 10, 16, 3, 0x111111);
-
-    this.container = this.scene.add.container(this.x, this.y, [body, eyeL, eyeR, pupL, pupR, mouth]);
-    this.container.setDepth(20);
-    this.body = body;
+    // If this character has a real image asset loaded, use it. Otherwise fall back to
+    // the placeholder rectangle + face. (hk.png is a single static image, not a sheet.)
+    if (img && this.scene.textures.exists(img)) {
+      this.isImage = true;
+      const body = this.scene.add.image(0, 0, img).setOrigin(0.5);
+      // Fit to ~64px tall, keeping aspect; collision box stays w x h.
+      body.setScale(64 / body.height);
+      this.container = this.scene.add.container(this.x, this.y, [body]);
+      this.container.setDepth(20);
+      this.body = body;
+      this._baseScale = body.scaleX; // remember for hurt/idle without distorting aspect
+    } else {
+      this.isImage = false;
+      // ASSET: replace this Container of shapes with this.scene.add.sprite(x, y, 'character_' + this.character.id)
+      // ASSET: spritesheet key = 'character_<id>', frameWidth: 64, frameHeight: 80
+      const body = this.scene.add.rectangle(0, 0, this.w, this.h, c).setStrokeStyle(3, 0xffffff, 0.9);
+      body.setOrigin(0.5);
+      const eyeL = this.scene.add.circle(-9, -6, 4, 0xffffff);
+      const eyeR = this.scene.add.circle(9, -6, 4, 0xffffff);
+      const pupL = this.scene.add.circle(-9, -6, 2, 0x111111);
+      const pupR = this.scene.add.circle(9, -6, 2, 0x111111);
+      const mouth = this.scene.add.rectangle(0, 10, 16, 3, 0x111111);
+      this.container = this.scene.add.container(this.x, this.y, [body, eyeL, eyeR, pupL, pupR, mouth]);
+      this.container.setDepth(20);
+      this.body = body;
+    }
 
     // Gentle idle bob on the body only (does not affect physics position).
     if (window.gsap) {
-      gsap.to(body, { y: -3, duration: 0.6, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+      gsap.to(this.body, { y: -3, duration: 0.6, yoyo: true, repeat: -1, ease: 'sine.inOut' });
     }
   }
 
@@ -106,16 +124,24 @@ window.Player = class Player {
 
   get feetY() { return this.y + this.h / 2; }
 
+  // Briefly freeze steering (sasaeng camera flash). GameScene checks this.stunned.
+  stun(ms = 500) {
+    this.stunned = true;
+    this.scene.time.delayedCall(ms, () => { this.stunned = false; });
+  }
+
   hurt() {
     if (this.invincible || !this.alive) return false;
     this.invincible = true;
     // AUDIO: this.scene.sound.play('sfx_hurt') — swap in when assets/audio/hurt.mp3 ready
+    const tintOn = () => this.isImage ? this.body.setTint(0xff2244) : this.body.setFillStyle(0xff2244);
+    const tintOff = () => this.isImage ? this.body.clearTint() : this.body.setFillStyle(this.character.color);
     if (window.gsap) {
-      gsap.to(this.body, {
-        duration: 0.12, repeat: 9, yoyo: true,
-        onUpdate: () => {},
-        onStart: () => this.body.setFillStyle(0xff2244),
-        onComplete: () => this.body.setFillStyle(this.character.color),
+      // Blink red a few times during invincibility.
+      tintOn();
+      gsap.to(this.container, {
+        alpha: 0.4, duration: 0.12, repeat: 9, yoyo: true,
+        onComplete: () => { this.container.alpha = 1; tintOff(); },
       });
     }
     this.scene.time.delayedCall(window.HURT_DURATION, () => { this.invincible = false; });

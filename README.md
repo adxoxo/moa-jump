@@ -9,7 +9,8 @@ Jump across three worlds — The Real World → The Chaos → The Star — and r
 
 ## Run it locally
 
-No build step. It's plain HTML + JS (Phaser & GSAP load from CDN). You just need any
+No build step. It's plain HTML + JS (Phaser & GSAP are vendored in `lib/`, no CDN — so it
+works offline and never stalls on a flaky network). You just need any
 static file server (opening `index.html` via `file://` won't work because the scripts
 are loaded by path).
 

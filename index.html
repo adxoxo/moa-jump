@@ -31,25 +31,27 @@
 <body>
   <div id="game-root"></div>
 
-  <!-- Phaser 3.60 game engine -->
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
-  <!-- GSAP 3.12 UI animations -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+  <!-- Phaser 3.60 + GSAP 3.12 — vendored locally (NOT a CDN) so the game still loads on
+       a flaky/offline network. A hanging CDN <script> used to block everything below it. -->
+  <script src="lib/phaser.min.js?v=4"></script>
+  <script src="lib/gsap.min.js?v=4"></script>
 
-  <!-- Game source — order matters: globals & entities before scenes -->
-  <script src="src/main.js"></script>
-  <script src="src/entities/Player.js"></script>
-  <script src="src/entities/Platform.js"></script>
-  <script src="src/entities/Enemy.js"></script>
-  <script src="src/zones/ZoneManager.js"></script>
-  <script src="src/services/leaderboard.js"></script>
-  <script src="src/scenes/TitleScene.js"></script>
-  <script src="src/scenes/CharacterSelectScene.js"></script>
-  <script src="src/scenes/GameScene.js"></script>
-  <script src="src/scenes/WinScene.js"></script>
-  <script src="src/scenes/LeaderboardScene.js"></script>
+  <!-- Game source — order matters: globals & entities before scenes.
+       The ?v=N query busts mobile browser caches whenever the code changes;
+       bump it (here + below) on every deploy so phones never run stale JS. -->
+  <script src="src/main.js?v=4"></script>
+  <script src="src/entities/Player.js?v=4"></script>
+  <script src="src/entities/Platform.js?v=4"></script>
+  <script src="src/entities/Enemy.js?v=4"></script>
+  <script src="src/zones/ZoneManager.js?v=4"></script>
+  <script src="src/services/leaderboard.js?v=4"></script>
+  <script src="src/scenes/TitleScene.js?v=4"></script>
+  <script src="src/scenes/CharacterSelectScene.js?v=4"></script>
+  <script src="src/scenes/GameScene.js?v=4"></script>
+  <script src="src/scenes/WinScene.js?v=4"></script>
+  <script src="src/scenes/LeaderboardScene.js?v=4"></script>
 
   <!-- Boot Phaser after all scripts loaded -->
-  <script src="src/boot.js"></script>
+  <script src="src/boot.js?v=4"></script>
 </body>
 </html>

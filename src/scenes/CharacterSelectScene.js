@@ -3,6 +3,12 @@
 window.CharacterSelectScene = class CharacterSelectScene extends Phaser.Scene {
   constructor() { super('CharacterSelectScene'); }
 
+  preload() {
+    window.CHARACTERS.forEach((ch) => {
+      if (ch.img && !this.textures.exists(ch.img)) this.load.image(ch.img, 'assets/characters/' + ch.img + '.png');
+    });
+  }
+
   create() {
     UI.autoCleanup(this);
     UI.gradientBg(this, 0x0a0014, 0x1a0840);
@@ -25,8 +31,14 @@ window.CharacterSelectScene = class CharacterSelectScene extends Phaser.Scene {
 
       // ASSET: replace card_bg rect with this.add.image(0, 0, 'card_bg') / 'card_selected'
       const bg = this.add.rectangle(0, 0, cardW, cardH, 0x2a1a4a).setStrokeStyle(2, 0x4c1d95);
-      // ASSET: replace chibi rect with this.add.sprite(0, -10, 'character_' + ch.id)
-      const chibi = this.add.rectangle(0, -12, 34, 44, ch.color).setStrokeStyle(2, 0xffffff, 0.8);
+      let chibi;
+      if (ch.img && this.textures.exists(ch.img)) {
+        chibi = this.add.image(0, -12, ch.img).setOrigin(0.5);
+        chibi.setScale(60 / chibi.height); // fit within card
+      } else {
+        // ASSET: replace chibi rect with this.add.sprite(0, -10, 'character_' + ch.id)
+        chibi = this.add.rectangle(0, -12, 34, 44, ch.color).setStrokeStyle(2, 0xffffff, 0.8);
+      }
       const name = this.add.text(0, 30, ch.role.replace('The ', ''), {
         fontFamily: 'Trebuchet MS, sans-serif', fontSize: '12px', color: '#e9d5ff',
       }).setOrigin(0.5);
