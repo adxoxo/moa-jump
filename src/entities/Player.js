@@ -1,20 +1,15 @@
 // Player.js — defines window.CHARACTERS and the Player class.
 // Physics are MANUAL and screen-space (no Phaser arcade body). GameScene drives update().
 
-// Five original archetypes. No real member names shown in UI (disclaimer-safe).
-// Each is paired with a character art file whose persona matches the role:
-//   The Mage   <- yj (dramatic, main-character energy)
-//   The Bard   <- sb (tall, awkward, secretly cool — the leader)
-//   The Jester <- bg (pure chaos, always grinning)
-//   The Knight <- ty (intense, focused, works out)
-//   The Sage   <- hk (soft maknae, secretly powerful)
+// Characters are named after the members; each art file's persona drives its role flavor.
+// (id stays as the original archetype key — it's internal only.)
 // Colors are tuned to each character's actual art so trails/UI feel cohesive.
 window.CHARACTERS = [
-  { id: 'mage',   name: 'The Mage',   role: 'The Mage',   color: 0xf5c518, hex: '#f5c518', blurb: 'Dramatic. Overthinks everything.', img: 'yj' },
-  { id: 'bard',   name: 'The Bard',   role: 'The Bard',   color: 0x3b82f6, hex: '#3b82f6', blurb: 'Tall, awkward, secretly cool.',     img: 'sb' },
-  { id: 'jester', name: 'The Jester', role: 'The Jester', color: 0xec4899, hex: '#ec4899', blurb: 'Pure chaos. Always grinning.',       img: 'bg' },
-  { id: 'knight', name: 'The Knight', role: 'The Knight', color: 0x9ca3af, hex: '#9ca3af', blurb: 'Intense. Accidentally cool.',        img: 'ty' },
-  { id: 'sage',   name: 'The Sage',   role: 'The Sage',   color: 0xa855f7, hex: '#a855f7', blurb: 'Soft, shy, secretly powerful.',      img: 'hk' },
+  { id: 'mage',   name: 'Yeonjun',    role: 'Yeonjun',    color: 0xf5c518, hex: '#f5c518', blurb: 'Dramatic. Overthinks everything.', img: 'yj' },
+  { id: 'bard',   name: 'Soobin',     role: 'Soobin',     color: 0x3b82f6, hex: '#3b82f6', blurb: 'Tall, awkward, secretly cool.',     img: 'sb' },
+  { id: 'jester', name: 'Beomgyu',    role: 'Beomgyu',    color: 0xec4899, hex: '#ec4899', blurb: 'Pure chaos. Always grinning.',       img: 'bg' },
+  { id: 'knight', name: 'Taehyun',    role: 'Taehyun',    color: 0x9ca3af, hex: '#9ca3af', blurb: 'Intense. Accidentally cool.',        img: 'ty' },
+  { id: 'sage',   name: 'Hueningkai', role: 'Hueningkai', color: 0xa855f7, hex: '#a855f7', blurb: 'Soft, shy, secretly powerful.',      img: 'hk' },
 ];
 
 window.PLAYER_W = 44;

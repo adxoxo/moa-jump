@@ -39,8 +39,8 @@ window.CharacterSelectScene = class CharacterSelectScene extends Phaser.Scene {
         // ASSET: replace chibi rect with this.add.sprite(0, -10, 'character_' + ch.id)
         chibi = this.add.rectangle(0, -12, 34, 44, ch.color).setStrokeStyle(2, 0xffffff, 0.8);
       }
-      const name = this.add.text(0, 30, ch.role.replace('The ', ''), {
-        fontFamily: 'Trebuchet MS, sans-serif', fontSize: '12px', color: '#e9d5ff',
+      const name = this.add.text(0, 30, ch.role, {
+        fontFamily: 'Trebuchet MS, sans-serif', fontSize: '11px', color: '#e9d5ff',
       }).setOrigin(0.5);
 
       container.add([bg, chibi, name]);

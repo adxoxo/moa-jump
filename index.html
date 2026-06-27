@@ -33,25 +33,25 @@
 
   <!-- Phaser 3.60 + GSAP 3.12 — vendored locally (NOT a CDN) so the game still loads on
        a flaky/offline network. A hanging CDN <script> used to block everything below it. -->
-  <script src="lib/phaser.min.js?v=4"></script>
-  <script src="lib/gsap.min.js?v=4"></script>
+  <script src="lib/phaser.min.js?v=5"></script>
+  <script src="lib/gsap.min.js?v=5"></script>
 
   <!-- Game source — order matters: globals & entities before scenes.
        The ?v=N query busts mobile browser caches whenever the code changes;
        bump it (here + below) on every deploy so phones never run stale JS. -->
-  <script src="src/main.js?v=4"></script>
-  <script src="src/entities/Player.js?v=4"></script>
-  <script src="src/entities/Platform.js?v=4"></script>
-  <script src="src/entities/Enemy.js?v=4"></script>
-  <script src="src/zones/ZoneManager.js?v=4"></script>
-  <script src="src/services/leaderboard.js?v=4"></script>
-  <script src="src/scenes/TitleScene.js?v=4"></script>
-  <script src="src/scenes/CharacterSelectScene.js?v=4"></script>
-  <script src="src/scenes/GameScene.js?v=4"></script>
-  <script src="src/scenes/WinScene.js?v=4"></script>
-  <script src="src/scenes/LeaderboardScene.js?v=4"></script>
+  <script src="src/main.js?v=5"></script>
+  <script src="src/entities/Player.js?v=5"></script>
+  <script src="src/entities/Platform.js?v=5"></script>
+  <script src="src/entities/Enemy.js?v=5"></script>
+  <script src="src/zones/ZoneManager.js?v=5"></script>
+  <script src="src/services/leaderboard.js?v=5"></script>
+  <script src="src/scenes/TitleScene.js?v=5"></script>
+  <script src="src/scenes/CharacterSelectScene.js?v=5"></script>
+  <script src="src/scenes/GameScene.js?v=5"></script>
+  <script src="src/scenes/WinScene.js?v=5"></script>
+  <script src="src/scenes/LeaderboardScene.js?v=5"></script>
 
   <!-- Boot Phaser after all scripts loaded -->
-  <script src="src/boot.js?v=4"></script>
+  <script src="src/boot.js?v=5"></script>
 </body>
 </html>
