@@ -26,7 +26,8 @@ window.SCORE_MULTIPLIER = 0.75;
 
 // Enemy contact penalty + hurt-state duration.
 window.ENEMY_PENALTY = 100;
-window.HURT_DURATION = 1200; // ms of invincibility after a hit
+window.HURT_DURATION = 3500; // ms the player flashes in the DANGER state after a hit;
+                            // touching another enemy during this window is fatal.
 
 // ---- Shared, mutable game state passed between scenes ----
 window.GameState = {

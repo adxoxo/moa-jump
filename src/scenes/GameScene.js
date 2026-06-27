@@ -268,15 +268,24 @@ window.GameScene = class GameScene extends Phaser.Scene {
     for (const p of this.platforms) p.update(dt);
     for (const e of this.enemies) { e.update(dt, this.player); }
 
-    // --- Enemy collisions ---
+    // --- Enemy collisions: one hit = danger state; a second hit (after getting clear
+    //     of all enemies) during that window = game over. ---
+    let hitEnemy = null;
     for (const e of this.enemies) {
-      if (e.def.damage && e.overlaps(this.player)) {
-        if (this.player.hurt()) {
-          this.score = Math.max(0, this.score - window.ENEMY_PENALTY);
-          if (e.def.knock) this.player.vx = Math.sign(this.player.x - e.x || 1) * 320;
-          if (e.def.stun) this.player.stun(500);
-        }
-      }
+      if (e.def.damage && e.overlaps(this.player)) { hitEnemy = e; break; }
+    }
+    if (!hitEnemy) {
+      // Clear of every enemy — arm the fatal second-hit check for the current danger window.
+      if (this.player.hurtState) this.player.separated = true;
+    } else if (!this.player.hurtState) {
+      // First hit: enter the flashing danger state, lose score, knock/stun.
+      this.player.enterHurt();
+      this.score = Math.max(0, this.score - window.ENEMY_PENALTY);
+      if (hitEnemy.def.knock) this.player.vx = Math.sign(this.player.x - hitEnemy.x || 1) * 320;
+      if (hitEnemy.def.stun) this.player.stun(500);
+    } else if (this.player.separated) {
+      // Hit again during the danger window after having gotten clear → game over.
+      return this._triggerGameOver();
     }
 
     // --- Despawn off-bottom objects, refill upward ---
