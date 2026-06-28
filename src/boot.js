@@ -12,6 +12,11 @@ const config = {
     width: window.GAME_W,
     height: window.GAME_H,
   },
+  // Track several simultaneous touches. Phaser defaults to ONE touch pointer, so a
+  // leftover/resting finger (e.g. a steering finger held into the menu, or a thumb on
+  // the bezel) occupies it and the actual tap gets dropped — the "button sometimes
+  // doesn't respond" bug. Extra pointers make taps register regardless.
+  input: { activePointers: 3 },
   // No global arcade physics: GameScene uses a manual screen-space system (see CLAUDE.md).
   scene: [
     window.TitleScene,

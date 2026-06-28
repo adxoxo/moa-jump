@@ -7,7 +7,7 @@ window.GAME_W = 420;
 window.GAME_H = 680;
 
 // ---- Win condition ----
-window.PRIZE_SCORE = 15000;
+window.PRIZE_SCORE = 8000;
 
 // ---- Physics constants (tuned for Doodle Jump feel — see CLAUDE.md) ----
 // These are BASE values for Zone 0. ZoneManager overrides per zone.
